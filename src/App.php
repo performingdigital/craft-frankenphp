@@ -3,6 +3,8 @@
 namespace Performing\CraftFrankenPhp;
 
 use Craft;
+use craft\helpers\Cp;
+use yii\web\UploadedFile;
 
 final class App
 {
@@ -64,7 +66,7 @@ final class App
         Cp::clearRequestedSite();
 
         // Reset uploaded files component
-        \yii\web\UploadedFile::reset();
+        UploadedFile::reset();
 
         // Finally, run the application in a try catch to handle exceptions properly
         try {
