@@ -39,7 +39,7 @@ final class App
     public function __construct()
     {
         // Load the Craft Application
-        $this->instance = include CRAFT_VENDOR_PATH . '/craftcms/cms/src/web.php';
+        $this->instance = require CRAFT_VENDOR_PATH . '/craftcms/cms/bootstrap/web.php';
 
         // Saving components definitions to reload them later in each request
         $this->definitions = $this->instance->getComponents(true);
