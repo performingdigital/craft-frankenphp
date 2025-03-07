@@ -1,0 +1,26 @@
+{
+    "name": "performing/craft-frankenphp",
+    "description": "Frankenphp worker mode for Craft CMS",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Performing\\CraftFrankenPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Giorgio Pogliani",
+            "email": "giorgiopogliani94@gmail.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^5.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+    }
+}
