@@ -63,7 +63,7 @@ final class App
         Craft::setAlias('@web', $this->instance->getRequest()->getHostInfo() . $this->instance->getRequest()->getBaseUrl());
 
         // Fix requestedSite static property because it will not be reset and the same site will be used each time
-        Cp::clearRequestedSite();
+        Cp::reset();
 
         // Reset uploaded files component
         UploadedFile::reset();
