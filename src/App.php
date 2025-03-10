@@ -4,6 +4,8 @@ namespace Performing\CraftFrankenPhp;
 
 use Craft;
 use craft\helpers\Cp;
+use craft\helpers\Db;
+use craft\helpers\Session;
 use yii\web\UploadedFile;
 
 final class App
@@ -52,6 +54,10 @@ final class App
 
     private function handler()
     {
+        // Reset the session helper
+        Session::reset();
+
+        // Open the session
         $this->instance->get('session')->open();
 
         foreach ($this->services as $id) {
@@ -62,10 +68,10 @@ final class App
         // Fix @web alias because it will not be updated by the request component
         Craft::setAlias('@web', $this->instance->getRequest()->getHostInfo() . $this->instance->getRequest()->getBaseUrl());
 
-        // Fix requestedSite static property because it will not be reset and the same site will be used each time
+        // Reset requestedSite static property otherwise the same site will be used each time
         Cp::reset();
 
-        // Reset uploaded files component
+        // Reset uploaded file helper
         UploadedFile::reset();
 
         // Finally, run the application in a try catch to handle exceptions properly
@@ -75,8 +81,11 @@ final class App
             $this->instance->get('errorHandler')->handleException($e);
         }
 
-        // Close the session to avoid session before next request
+        // Close/write the current session
         $this->instance->get('session')->close();
+
+        // Reset the Db helper
+        Db::reset();
     }
 
     public function run()
