@@ -66,7 +66,7 @@ final class App
         }
 
         // Fix @web alias because it will not be updated by the request component
-        Craft::setAlias('@web', $this->instance->getRequest()->getHostInfo() . $this->instance->getRequest()->getBaseUrl());
+        Craft::setAlias('@web', '/' . $this->instance->getRequest()->getBaseUrl());
 
         // Reset requestedSite static property otherwise the same site will be used each time
         Cp::reset();
@@ -76,6 +76,7 @@ final class App
 
         // Finally, run the application in a try catch to handle exceptions properly
         try {
+
             $this->instance->run();
         } catch (\Throwable $e) {
             $this->instance->get('errorHandler')->handleException($e);
