@@ -54,6 +54,9 @@ final class App
 
     private function handler()
     {
+        // Open the database connection
+        $this->instance->get('db')->open();
+
         // Reset the session helper
         Session::reset();
 
@@ -84,6 +87,9 @@ final class App
 
         // Close/write the current session
         $this->instance->get('session')->close();
+
+        // Close the database connection
+        $this->instance->get('db')->close();
 
         // Reset the Db helper
         Db::reset();
