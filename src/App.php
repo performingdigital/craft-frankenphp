@@ -3,6 +3,7 @@
 namespace Performing\CraftFrankenPhp;
 
 use Craft;
+use craft\base\Element;
 use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Session;
@@ -37,7 +38,8 @@ final class App
         "user",
         "users",
         "redis",
-        "view"
+        "view",
+        "elementSources"
     ];
 
     public function __construct()
@@ -77,6 +79,9 @@ final class App
         // Reset uploaded file helper
         UploadedFile::reset();
 
+        // Reset memoized element sources, because they depend on the current user/request
+        $this->resetElementSources();
+
         // Finally, run the application in a try catch to handle exceptions properly
         try {
 
@@ -93,6 +98,13 @@ final class App
 
         // Reset the Db helper
         Db::reset();
+    }
+
+    private function resetElementSources(): void
+    {
+        $property = new \ReflectionProperty(Element::class, 'sources');
+        $property->setAccessible(true);
+        $property->setValue(null, []);
     }
 
     public function run()
