@@ -7,6 +7,7 @@ use craft\base\Element;
 use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Session;
+use craft\helpers\UrlHelper;
 use yii\web\UploadedFile;
 
 final class App
@@ -82,6 +83,9 @@ final class App
         // Reset memoized element sources, because they depend on the current user/request
         $this->resetElementSources();
 
+        // Re-register request-scoped import maps that plugins add during normal per-request bootstrap
+        $this->registerCkeditorImports();
+
         // Finally, run the application in a try catch to handle exceptions properly
         try {
 
@@ -105,6 +109,41 @@ final class App
         $property = new \ReflectionProperty(Element::class, 'sources');
         $property->setAccessible(true);
         $property->setValue(null, []);
+    }
+
+    private function registerCkeditorImports(): void
+    {
+        if (
+            !class_exists(\craft\ckeditor\Plugin::class) ||
+            !class_exists(\craft\ckeditor\web\assets\ckeditor\CkeditorAsset::class) ||
+            !$this->instance->getRequest()->getIsCpRequest()
+        ) {
+            return;
+        }
+
+        $view = $this->instance->getView();
+        $assetManager = $view->getAssetManager();
+
+        $ckBundle = $assetManager->getBundle(\craft\ckeditor\web\assets\ckeditor\CkeditorAsset::class);
+        $view->registerJsImport('ckeditor5', $assetManager->getAssetUrl($ckBundle, 'lib/ckeditor5.js', false));
+        $view->registerJsImport('ckeditor5/', UrlHelper::stripQueryString($assetManager->getAssetUrl($ckBundle, 'lib/', false)));
+        $view->registerJsImport('ckeditor5/translations/', UrlHelper::stripQueryString($assetManager->getAssetUrl($ckBundle, 'lib/translations/', false)));
+        $view->registerJsImport('@craftcms/ckeditor', $assetManager->getAssetUrl($ckBundle, 'ckeditor5-craftcms.js', false));
+
+        if (class_exists(\craft\ckeditor\web\assets\fieldsettings\FieldSettingsAsset::class)) {
+            $configBundle = $assetManager->getBundle(\craft\ckeditor\web\assets\fieldsettings\FieldSettingsAsset::class);
+            $view->registerJsImport('@craftcms/ckeditor-config', $assetManager->getAssetUrl($configBundle, 'fieldsettings.js'));
+        }
+
+        $property = new \ReflectionProperty(\craft\ckeditor\Plugin::class, 'ckeditorImports');
+        $property->setAccessible(true);
+
+        foreach ($property->getValue() as $bundleName => $entry) {
+            $bundle = $assetManager->getBundle($bundleName);
+            if ($bundle instanceof \craft\ckeditor\web\assets\BaseCkeditorPackageAsset) {
+                $view->registerJsImport($bundle->namespace, $assetManager->getAssetUrl($bundle, $entry, false));
+            }
+        }
     }
 
     public function run()
